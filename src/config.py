@@ -17,3 +17,11 @@ LANDMARK_THICKNESS = -1  # Relleno
 
 # Cantidad de landmarks esperados
 TOTAL_LANDMARKS = 478
+
+# Modos de visualización disponibles
+VISUALIZATION_MODES = [
+    "Puntos simples",
+    "Puntos + malla conectada",
+    "Solo contornos principales",
+    "Heatmap de densidad de puntos"
+]

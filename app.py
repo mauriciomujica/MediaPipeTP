@@ -5,7 +5,7 @@ import streamlit as st
 from PIL import Image
 from src.detector import FaceLandmarkDetector
 from src.utils import pil_to_cv2, cv2_to_pil, resize_image
-from src.config import TOTAL_LANDMARKS
+from src.config import TOTAL_LANDMARKS, VISUALIZATION_MODES
 
 
 # Configuración de la página
@@ -42,6 +42,14 @@ with st.sidebar:
     st.divider()
     st.caption("Desarrollado en el Laboratorio 2 - IFTS24")
 
+# Selector de modo de visualización
+visualization_mode = st.pills(
+    "Modo de visualización",
+    VISUALIZATION_MODES,
+    help="Elige cómo visualizar los landmarks faciales",
+    default=VISUALIZATION_MODES[0]
+)
+
 # Uploader de imagen
 uploaded_file = st.file_uploader(
     "Subí una imagen con un rostro",
@@ -69,7 +77,7 @@ if uploaded_file is not None:
     # Detectar landmarks
     with st.spinner("Detectando landmarks faciales..."):
         detector = FaceLandmarkDetector()
-        imagen_procesada, landmarks, info = detector.detect(imagen_cv2)
+        imagen_procesada, landmarks, info = detector.detect(imagen_cv2, visualization_mode)
         detector.close()
     
     with col2:
@@ -94,6 +102,22 @@ if uploaded_file is not None:
         with metric_col3:
             porcentaje = (info['total_landmarks'] / TOTAL_LANDMARKS) * 100
             st.metric("Precisión", f"{porcentaje:.1f}%")
+
+        # Mostrar métricas adicionales
+        st.subheader("Métricas Faciales")
+        metric_col1, metric_col2, metric_col3 = st.columns(3)
+
+        with metric_col1:
+            st.metric("Apertura Boca", f"{info['apertura_boca']:.2f} px")
+
+        with metric_col2:
+            st.metric("Apertura Ojo Izq", f"{info['apertura_ojos']['izquierdo']:.2f} px")
+
+        with metric_col3:
+            st.metric("Apertura Ojo Der", f"{info['apertura_ojos']['derecho']:.2f} px")
+
+        # Inclinación de cabeza
+        st.metric("Inclinación Cabeza", f"{info['inclinacion_cabeza']:.2f}°")
     else:
         st.error("No se detectó ningún rostro en la imagen")
         st.info("""
